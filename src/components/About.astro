@@ -1,0 +1,19 @@
+---
+// About section — bio and skills
+---
+
+<div class="mb-16">
+  <h2 class="font-display text-3xl text-accent mb-8">// about</h2>
+  <p class="text-text-primary leading-relaxed mb-4">
+    I'm a developer who builds tools that solve real problems.
+    mitools is my workshop — a collection of projects focused on
+    productivity, developer experience, and making useful things.
+  </p>
+  <div class="flex flex-wrap gap-3 mt-6">
+    {['TypeScript', 'React', 'Node.js', 'Astro', 'PostgreSQL', 'Tailwind CSS'].map((skill) => (
+      <span class="text-xs font-mono text-accent border border-accent/30 px-3 py-1 rounded">
+        {skill}
+      </span>
+    ))}
+  </div>
+</div>

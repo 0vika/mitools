@@ -1,0 +1,38 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import About from '../components/About.astro';
+import ContactForm from '../components/ContactForm.astro';
+
+export const prerender = true;
+---
+
+<Base>
+  <main>
+    <Hero />
+
+    <section id="projects" class="max-w-5xl mx-auto px-6 py-24">
+      <h2 class="font-display text-3xl text-accent mb-12">// projects</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <ProjectCard
+          name="habit"
+          description="A habit tracking app to build consistency and stay accountable."
+          tags={['React', 'Node.js', 'PostgreSQL']}
+          url="https://habit.mitools.dev"
+        />
+        <ProjectCard
+          name="crimsontools"
+          description="A suite of developer utilities and quality-of-life tools."
+          tags={['TypeScript', 'Astro', 'Tailwind']}
+          url="https://crimsontools.mitools.dev"
+        />
+      </div>
+    </section>
+
+    <section id="about" class="max-w-3xl mx-auto px-6 py-24">
+      <About />
+      <ContactForm />
+    </section>
+  </main>
+</Base>
