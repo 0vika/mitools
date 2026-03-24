@@ -1,20 +1,185 @@
 ---
-// Hero section — full viewport terminal prompt
+// Hero section — full viewport with name reveal animation
 ---
 
 <section id="hero" class="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-  <h1 class="font-display text-5xl md:text-7xl text-accent fade-up">
-    mitools.dev
-  </h1>
-  <p class="font-mono text-lg md:text-xl text-text-primary mt-6 typing fade-up fade-up-delay-2">
+  <div class="relative fade-up">
+    <h1 id="title" class="font-display text-5xl md:text-7xl text-accent whitespace-nowrap relative inline-block">
+      <span>m</span><span id="chunk-icah" class="deletable">icah </span><span>i</span><span id="chunk-ce" class="deletable">ce</span><span id="typed-suffix"></span><span id="type-caret" class="opacity-0">|</span>
+    </h1>
+    <!-- Mouse cursor -->
+    <svg id="cursor" class="absolute pointer-events-none opacity-0" width="20" height="24" viewBox="0 0 20 24" fill="none" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+      <path d="M2 1L2 18.5L6.5 14.5L10.5 22L13.5 20.5L9.5 13L15 12.5L2 1Z" fill="#261312" stroke="#E8E0CD" stroke-width="1"/>
+    </svg>
+  </div>
+
+  <p id="subtitle" class="font-mono text-lg md:text-xl text-accent-alt mt-6 opacity-0">
     > developer hub &amp; launchpad_
   </p>
   <a
+    id="cta"
     href="#projects"
     class="mt-12 px-6 py-3 border border-accent text-accent font-mono text-sm
-           hover:bg-accent hover:text-bg transition-colors duration-150
-           fade-up fade-up-delay-3"
+           hover:bg-accent hover:text-bg transition-colors duration-150 opacity-0"
   >
     [ explore ]
   </a>
 </section>
+
+<style>
+  .deletable {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    transition: max-width 0.4s ease-in-out, opacity 0.3s ease-in-out;
+  }
+
+  .deletable.selected {
+    background: rgba(59, 35, 34, 0.25);
+    border-radius: 2px;
+  }
+
+  .deletable.collapsing {
+    max-width: 0 !important;
+    opacity: 0;
+  }
+
+  #cursor {
+    transition: top 0.5s ease-in-out, left 0.5s ease-in-out, opacity 0.3s ease;
+    z-index: 10;
+  }
+
+  #cursor.clicking {
+    animation: click-bounce 0.15s ease-in-out;
+  }
+
+  @keyframes click-bounce {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(0.85); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+
+  @keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  #type-caret.blinking {
+    opacity: 1;
+    animation: blink 0.6s step-end infinite;
+  }
+
+  .subtitle-in {
+    animation: fade-up 0.6s ease-out forwards;
+  }
+
+  .cta-in {
+    animation: fade-up 0.6s ease-out 0.15s forwards;
+  }
+</style>
+
+<script>
+  function runAnimation() {
+    const cursor = document.getElementById('cursor') as SVGElement;
+    const title = document.getElementById('title') as HTMLElement;
+    const chunkIcah = document.getElementById('chunk-icah') as HTMLElement;
+    const chunkCe = document.getElementById('chunk-ce') as HTMLElement;
+    const typedSuffix = document.getElementById('typed-suffix') as HTMLElement;
+    const typeCaret = document.getElementById('type-caret') as HTMLElement;
+    const subtitle = document.getElementById('subtitle') as HTMLElement;
+    const cta = document.getElementById('cta') as HTMLElement;
+
+    // Set initial max-width so transition works
+    chunkIcah.style.maxWidth = chunkIcah.scrollWidth + 'px';
+    chunkCe.style.maxWidth = chunkCe.scrollWidth + 'px';
+
+    function moveCursorTo(el: HTMLElement) {
+      const titleRect = title.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const x = elRect.left - titleRect.left + elRect.width / 2;
+      const y = elRect.top - titleRect.top + elRect.height * 0.7;
+      cursor.style.left = x + 'px';
+      cursor.style.top = y + 'px';
+    }
+
+    function clickAnim() {
+      cursor.classList.add('clicking');
+      setTimeout(() => cursor.classList.remove('clicking'), 150);
+    }
+
+    function typeText(text: string, el: HTMLElement, speed: number, callback: () => void) {
+      let i = 0;
+      function typeChar() {
+        if (i < text.length) {
+          el.textContent += text[i];
+          i++;
+          setTimeout(typeChar, speed);
+        } else {
+          callback();
+        }
+      }
+      typeChar();
+    }
+
+    // Timeline
+    const timeline = [
+      // 1. Show cursor
+      [1200, () => {
+        cursor.style.opacity = '1';
+      }],
+      // 2. Move to "icah"
+      [600, () => {
+        moveCursorTo(chunkIcah);
+      }],
+      // 3. Click & select "icah"
+      [550, () => {
+        clickAnim();
+        setTimeout(() => chunkIcah.classList.add('selected'), 100);
+      }],
+      // 4. Delete "icah"
+      [600, () => {
+        chunkIcah.classList.remove('selected');
+        chunkIcah.classList.add('collapsing');
+      }],
+      // 5. Move to "ce"
+      [700, () => {
+        moveCursorTo(chunkCe);
+      }],
+      // 6. Click & select "ce"
+      [550, () => {
+        clickAnim();
+        setTimeout(() => chunkCe.classList.add('selected'), 100);
+      }],
+      // 7. Delete "ce"
+      [600, () => {
+        chunkCe.classList.remove('selected');
+        chunkCe.classList.add('collapsing');
+      }],
+      // 8. Hide mouse cursor, show typing caret
+      [500, () => {
+        cursor.style.opacity = '0';
+        typeCaret.classList.add('blinking');
+      }],
+      // 12. Type "tools.dev"
+      [400, () => {
+        typeText('tools.dev', typedSuffix, 100, () => {
+          // 13. Stop blinking, show subtitle and CTA
+          setTimeout(() => {
+            typeCaret.classList.remove('blinking');
+            typeCaret.style.opacity = '0';
+            subtitle.classList.add('subtitle-in');
+            setTimeout(() => cta.classList.add('cta-in'), 150);
+          }, 400);
+        });
+      }],
+    ] as [number, () => void][];
+
+    let delay = 0;
+    for (const [wait, fn] of timeline) {
+      delay += wait;
+      setTimeout(fn, delay);
+    }
+  }
+
+  runAnimation();
+</script>

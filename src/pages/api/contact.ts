@@ -1,3 +1,4 @@
+// TODO: set up email — add real RESEND_API_KEY and CONTACT_TO_EMAIL in .env, then test end-to-end
 import type { APIRoute } from 'astro';
 import { Resend } from 'resend';
 

@@ -174,14 +174,69 @@ CONTACT_TO_EMAIL=your@email.com
 
 ---
 
+## Docker
+
+The project runs in Docker both locally and on Render.
+
+### Dockerfile
+
+```dockerfile
+FROM node:18-alpine AS builder
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+
+FROM node:18-alpine AS runtime
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+EXPOSE 4321
+ENV HOST=0.0.0.0
+ENV PORT=4321
+CMD ["node", "./dist/server/entry.mjs"]
+```
+
+### .dockerignore
+
+```
+node_modules
+dist
+.env
+.env.*
+.git
+.gitignore
+README.md
+```
+
+### Local Docker commands
+
+```bash
+# Build the image
+docker build -t mitools-dev .
+
+# Run with env file
+docker run -p 4321:4321 --env-file .env mitools-dev
+
+# Visit http://localhost:4321
+```
+
+### Notes
+
+- Multi-stage build — builder compiles Astro, runtime stage runs it lean
+- `HOST=0.0.0.0` is required so the server binds to all interfaces inside the container, not just localhost
+- Never copy `.env` into the image — pass env vars at runtime via `--env-file` locally or Render's environment tab in production
+- Render detects the Dockerfile automatically when the service type is set to Docker
+
+---
+
 ## Render Deployment Notes
 
-- Framework: Static Site (or Web Service if SSR is needed for the API route)
-- If using Astro hybrid mode (recommended): deploy as a **Web Service** on Render
-  - Build command: `npm run build`
-  - Start command: `node ./dist/server/entry.mjs`
-  - Set Node version: 18+
-- Add env vars in Render → Environment tab
+- Set service type to **Docker** — Render will auto-detect the Dockerfile
+- Add `RESEND_API_KEY` and `CONTACT_TO_EMAIL` in Render → Environment tab
+- Connect custom domain `mitools.dev` in Render → Settings → Custom Domains
 
 ---
 
@@ -202,6 +257,121 @@ These are separate projects hosted independently. mitools.dev links to them but 
 - CMS or blog
 - Analytics (can add later — Plausible or Umami recommended)
 - Additional project pages beyond habit and crimsontools
+
+---
+
+## Production Phases
+
+Work through these phases in order. Do not move to the next phase until the current one is complete and working.
+
+---
+
+### Phase 1 — Project Foundation + Docker
+*Goal: Runnable project with zero errors, visible in Docker immediately*
+
+- [ ] Initialise Astro project with Tailwind CSS
+- [ ] Configure `astro.config.mjs` with `output: 'hybrid'`
+- [ ] Set up `tsconfig.json`
+- [ ] Install dependencies: `astro`, `@astrojs/tailwind`, `@astrojs/node`, `resend`
+- [ ] Create `Base.astro` layout with `<head>`, Google Fonts (Syne + JetBrains Mono), and global meta tags
+- [ ] Create `global.css` with CSS variables for all design tokens
+- [ ] Create `index.astro` as an empty shell that imports the layout
+- [ ] Confirm `npm run dev` starts with no errors
+- [ ] Create `Dockerfile` and `.dockerignore` (see Docker section)
+- [ ] Build image: `docker build -t mitools-dev .`
+- [ ] Run container: `docker run -p 4321:4321 --env-file .env mitools-dev`
+- [ ] Confirm site loads at `http://localhost:4321` inside Docker
+- [ ] From this point, rebuild Docker after every phase to verify changes
+
+---
+
+### Phase 2 — Global Styles & Design System
+*Goal: Design tokens and base aesthetic are locked in*
+
+- [ ] Define all CSS variables in `global.css` (colors, fonts, spacing)
+- [ ] Add scanline overlay and faint grid background to `global.css`
+- [ ] Set base styles: body background, default text color, font rendering
+- [ ] Create reusable Tailwind config extensions for brand colors and fonts
+- [ ] Test dark background renders correctly at all viewport widths
+
+---
+
+### Phase 3 — Hero Section
+*Goal: First section is built and visually complete*
+
+- [ ] Build `Hero.astro` component
+- [ ] Terminal-style heading: `mitools.dev` with prompt prefix (`>_` or `$`)
+- [ ] Typing animation on subtitle (CSS keyframes preferred)
+- [ ] Scroll-down CTA button linking to `#projects`
+- [ ] Staggered fade-up animation on page load (CSS animation-delay)
+- [ ] Fully responsive at 375px and up
+
+---
+
+### Phase 4 — Projects Section
+*Goal: Both project cards are built and link correctly*
+
+- [ ] Build `ProjectCard.astro` component with props: `name`, `description`, `tags`, `url`
+- [ ] Terminal window chrome aesthetic on cards (traffic light dots or bracket style)
+- [ ] Render two cards: habit and crimsontools with correct subdomain URLs
+- [ ] Cards open subdomains in a new tab
+- [ ] Hover state: border glow or accent color transition
+- [ ] Cards stack vertically on mobile, side by side on desktop
+
+---
+
+### Phase 5 — About Section & Contact Form
+*Goal: About section is live and contact form sends real emails*
+
+- [ ] Build `About.astro` with developer bio and skills list
+- [ ] Build `ContactForm.astro` with Name, Email, Message fields
+- [ ] Terminal input aesthetic: monospace font, dark inputs, green accent on focus
+- [ ] Create `/api/contact.ts` API route
+- [ ] Integrate Resend — validate fields, send email to `CONTACT_TO_EMAIL`
+- [ ] Return JSON success/error response
+- [ ] Handle inline success and error states in the form (no page reload)
+- [ ] Test form end-to-end with real email delivery
+
+---
+
+### Phase 6 — Deployment
+*Goal: Site is live on Render at mitools.dev*
+
+- [ ] Confirm contact form works inside Docker locally
+- [ ] Push repo to GitHub
+- [ ] Create new Web Service on Render — set environment to **Docker** (Render auto-detects the Dockerfile)
+- [ ] Add `RESEND_API_KEY` and `CONTACT_TO_EMAIL` in Render environment tab
+- [ ] Verify deployment builds and runs successfully on Render
+- [ ] Connect custom domain `mitools.dev` in Render dashboard
+- [ ] Confirm contact form works in production
+
+---
+
+### Phase 7 — Logo & Brand Assets
+*Goal: Real logo is in place, favicon is set*
+
+- [ ] Drop finalised `logo.svg` into `/public/`
+- [ ] Update `Base.astro` to use logo in nav/header
+- [ ] Remove `[ mitools ]` text fallback once logo is confirmed working
+- [ ] Create and add `favicon.ico` (export from logo)
+- [ ] Add Open Graph meta tags in `Base.astro` (og:title, og:description, og:image)
+- [ ] Add a simple og:image (1200×630) to `/public/`
+
+---
+
+### Phase 8 — Polish & Final Touches
+*Goal: Site feels production-grade and memorable*
+
+- [ ] Audit all animations — timing, easing, and feel should be smooth not jarring
+- [ ] Add scroll-triggered slide-up on project cards (Intersection Observer)
+- [ ] Add `<ViewTransitions />` for smooth navigation if multi-page is added later
+- [ ] Cross-browser test: Chrome, Firefox, Safari
+- [ ] Mobile audit at 375px, 390px, 430px
+- [ ] Lighthouse audit — aim for 90+ on Performance, Accessibility, SEO
+- [ ] Fix any contrast or accessibility issues flagged
+- [ ] Add subtle cursor glow or custom cursor (optional — only if it fits the aesthetic)
+- [ ] Final copy review — bio, project descriptions, CTA text
+- [ ] Tag `v1.0.0` release on GitHub
 
 ---
 
