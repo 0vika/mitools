@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
     // CSRF: check origin
     const origin = request.headers.get('origin');
-    const allowedOrigins = ['https://mitools.dev', 'http://localhost:4321'];
+    const allowedOrigins = ['https://mitools.dev', 'https://www.mitools.dev', 'http://localhost:4321'];
     if (!origin || !allowedOrigins.includes(origin)) {
       return new Response(JSON.stringify({ error: 'Forbidden.' }), { status: 403 });
     }
