@@ -64,7 +64,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
     const toEmail = import.meta.env.CONTACT_TO_EMAIL;
 
     await resend.emails.send({
-      from: 'mitools.dev <onboarding@resend.dev>',
+      from: 'onboarding@resend.dev',
       to: toEmail,
       subject: `Contact from ${cleanName} via mitools.dev`,
       text: `Name: ${cleanName}\nEmail: ${cleanEmail}\n\n${cleanMessage}`,
