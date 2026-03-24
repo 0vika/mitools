@@ -60,8 +60,8 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       return new Response(JSON.stringify({ error: 'Invalid email format.' }), { status: 400 });
     }
 
-    const resend = new Resend(import.meta.env.RESEND_API_KEY);
-    const toEmail = import.meta.env.CONTACT_TO_EMAIL;
+    const resend = new Resend(process.env.RESEND_API_KEY || import.meta.env.RESEND_API_KEY);
+    const toEmail = process.env.CONTACT_TO_EMAIL || import.meta.env.CONTACT_TO_EMAIL;
 
     await resend.emails.send({
       from: 'onboarding@resend.dev',
