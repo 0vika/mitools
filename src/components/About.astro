@@ -7,8 +7,18 @@
   <p class="text-text-primary leading-relaxed mb-4">
     Hi, my name is Micah Ice. I'm a high school developer who specializes in
     building apps and tools. This is a collection of my apps and projects that
-    I've been building since January 2026. If you're interested in building your
-    own apps or want me to make one for you, email me below.
+    I've been building since January 2026. If you're interested in learning how
+    to build your own apps or wish to hire me as your developer{' '}
+    <a
+      href="#contact"
+      class="email-cta inline-flex items-baseline font-mono text-sm text-accent border border-accent px-2 py-0.5 rounded transition-colors duration-150 hover:bg-accent hover:text-bg"
+    >
+      <span class="bracket text-accent-alt mr-1">[</span>
+      <span>email me</span>
+      <span class="caret ml-0.5">_</span>
+      <span class="bracket text-accent-alt ml-1">]</span>
+    </a>{' '}
+    below.
   </p>
   <div class="flex flex-wrap gap-3 mt-6">
     {['17 Years Old', 'Entrepreneur', 'High School Developer', 'App Builder', 'Self-Taught'].map((skill) => (
@@ -18,3 +28,18 @@
     ))}
   </div>
 </div>
+
+<style>
+  .email-cta .caret {
+    animation: email-cta-blink 0.9s step-end infinite;
+  }
+
+  .email-cta:hover .bracket {
+    color: inherit;
+  }
+
+  @keyframes email-cta-blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>

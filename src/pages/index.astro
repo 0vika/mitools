@@ -12,9 +12,13 @@ export const prerender = true;
   <main>
     <Hero />
 
-    <section id="projects" class="max-w-5xl mx-auto px-6 py-24">
+    <section id="about" class="max-w-3xl mx-auto px-6 py-24">
+      <About />
+    </section>
+
+    <section id="projects" class="max-w-4xl mx-auto px-6 py-24">
       <h2 class="font-display text-3xl text-accent mb-12">// projects</h2>
-      <div class="grid md:grid-cols-2 gap-8">
+      <div class="flex flex-col gap-8">
         <ProjectCard
           name="habit"
           description="A productivity based app that syncs with your school account to track and organize your assignments."
@@ -27,11 +31,16 @@ export const prerender = true;
           tags={['Research', 'History', 'Bibliography', 'Notecards']}
           url="https://crimsontools.mitools.dev"
         />
+        <ProjectCard
+          name="trueclips"
+          description="An automated clip farm that watches popular Twitch streamers, uses pattern recognition to capture highlights, and edits them into short-form videos."
+          tags={['Twitch', 'Automation', 'Pattern Recognition', 'Shorts']}
+          url="https://www.youtube.com/@true_clips-k3v/shorts"
+        />
       </div>
     </section>
 
-    <section id="about" class="max-w-3xl mx-auto px-6 py-24">
-      <About />
+    <section id="contact" class="max-w-3xl mx-auto px-6 py-24">
       <ContactForm />
     </section>
   </main>
